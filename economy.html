@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Economy & Wallet — Quick Jobs</title>
+  <link rel="icon" type="image/png" href="icons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+  <link rel="shortcut icon" href="icons/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/core.css" />
+  <link rel="stylesheet" href="styles/economy.css" />
+</head>
+<body>
+
+  <!-- Ambient Animated Background (Matches login.html) -->
+  <div class="bg-field" aria-hidden="true">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="grain"></div>
+  </div>
+
+  <!-- Unified Top Navigation Bar (Identical across all pages) -->
+  <header class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-badge">
+        <img src="icons/favicon-96x96.png" class="nav-logo-img" alt="Quick Jobs">
+      </div>
+      <div class="nav-title">Quick <span>Jobs</span></div>
+    </a>
+
+    <nav>
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Explore Gigs</a></li>
+        <li><a href="tasks.html" class="nav-link">My Tasks &amp; Chat</a></li>
+        <li><a href="economy.html" class="nav-link active">Economy</a></li>
+        <li data-auth="admin-only" hidden><a href="admin.html" class="nav-link admin-nav-link">Admin Portal</a></li>
+      </ul>
+    </nav>
+
+    <!-- Topbar Actions: Qc Wallet & Profile -->
+    <div class="nav-actions-group">
+      <!-- Live Qc Currency Pill (Click to topup) -->
+      <button type="button" class="nav-qc-pill" id="navTopupBtn" title="Your Quick Coins balance (1 Qc = ₹1). Click to top up!">
+        <span class="coin-emoji"><img src="icons/qc.png" class="qc-icon nav-qc-img" alt="Qc"></span>
+        <span id="navQcDisplay">0</span>
+        <span class="qc-label">Qc</span>
+        <span class="qc-plus-btn">+</span>
+      </button>
+
+      <!-- Notification Dropdown Anchor -->
+      <div class="nav-notif-container" id="navNotifContainer">
+        <button type="button" class="nav-notif-btn" id="navNotifBtn" aria-label="Notifications" title="View Notifications">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-badge" id="navNotifBadge">0</span>
+        </button>
+
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <span class="notif-title">🔔 Notifications</span>
+            <button type="button" class="notif-mark-read" id="markAllNotifsReadBtn">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">No notifications yet.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile Dropdown Anchor -->
+      <div class="nav-user">
+        <button type="button" class="user-chip-btn" id="userMenuBtn" aria-label="Open profile menu" title="View profile and actions">
+          <div class="avatar" data-auth="initials">S</div>
+          <span class="user-name" data-auth="name">Student</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
+        <!-- Profile Popover / Dropdown Menu -->
+        <div class="user-dropdown" id="userDropdown">
+          <div class="user-dropdown-header">
+            <div class="user-dropdown-name" data-auth="name">Student</div>
+            <div class="user-dropdown-email" data-auth="email">—</div>
+            <div class="user-dropdown-reg">Reg No: <span data-auth="regNo">—</span></div>
+            <div class="admin-tag" data-auth="admin-only" hidden>⚡ Campus Admin</div>
+          </div>
+
+          <div class="user-dropdown-balance">
+            <span class="balance-label">Quick Coins</span>
+            <span class="balance-value" id="dropdownQcDisplay">0 Qc</span>
+          </div>
+
+          <div class="user-dropdown-menu">
+            <a href="index.html" class="dropdown-link">
+              <span>🔍</span> Explore Gigs
+            </a>
+            <a href="tasks.html" class="dropdown-link">
+              <span>📋</span> My Tasks &amp; Applications
+            </a>
+            <a href="economy.html" class="dropdown-link">
+              <span>💰</span> Student Economy &amp; Transfers
+            </a>
+            <button type="button" class="dropdown-link btn-topup-trigger" id="dropdownTopupBtn">
+              <span>⚡</span> Top up Quick Coins
+            </button>
+            <a href="admin.html" class="dropdown-link" data-auth="admin-only" hidden style="color:var(--purple); font-weight:700;">
+              <span>🛡️</span> Admin Portal
+            </a>
+          </div>
+
+          <div class="user-dropdown-footer">
+            <button type="button" class="btn-logout" data-auth="logout">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              Sign out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="econ-main">
+    <div class="econ-container">
+
+      <!-- Student Welcome & Quick Actions Hero -->
+      <section class="econ-hero">
+        <div class="econ-hero-content">
+          <div class="econ-hero-badge">
+            <span class="badge-status-dot"></span>
+            <span>Campus Economy • 1 Quick Coin (Qc) = ₹1.00 INR</span>
+          </div>
+          <h1 class="econ-hero-title">Student Finances &amp; Wallet</h1>
+          <p class="econ-hero-sub" id="userSubtext">
+            Track your task payouts, transfer coins peer-to-peer to campus friends, or withdraw directly to your UPI / Bank Account.
+          </p>
+        </div>
+
+        <div class="econ-hero-actions">
+          <button class="btn btn-primary" id="openTransferModalBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Transfer Qc
+          </button>
+          <button class="btn btn-outline" id="openWithdrawModalBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v14"/><path d="m7 12 5 5 5-5"/><path d="M4 21h16"/></svg>
+            Withdraw to UPI/Bank
+          </button>
+          <button class="btn btn-secondary" id="openTopupModalBtn">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Top Up
+          </button>
+        </div>
+      </section>
+
+      <!-- 4 Core Financial Metric Cards -->
+      <section class="econ-stats-grid">
+        <!-- Card 1: Available Balance -->
+        <div class="stat-card balance-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Available Balance</span>
+            <div class="stat-icon-wrapper icon-balance">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M22 10H2"/><path d="M18 14h.01"/></svg>
+            </div>
+          </div>
+          <div class="stat-value-group">
+            <span class="stat-curr text-gold">₹</span>
+            <span class="stat-number text-gold" id="statBalance">0</span>
+            <span class="stat-unit">Qc</span>
+          </div>
+          <div class="stat-card-footer">
+            <span class="stat-footnote">100% backed • Instant use on campus</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Lifetime Earnings -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Total Earned</span>
+            <div class="stat-icon-wrapper icon-earned">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            </div>
+          </div>
+          <div class="stat-value-group">
+            <span class="stat-curr text-teal">+₹</span>
+            <span class="stat-number text-teal" id="statEarned">0</span>
+            <span class="stat-unit">Qc</span>
+          </div>
+          <div class="stat-card-footer">
+            <span class="stat-footnote">Task rewards &amp; received transfers</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Total Transferred / Spent -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Total Transferred / Spent</span>
+            <div class="stat-icon-wrapper icon-spent">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            </div>
+          </div>
+          <div class="stat-value-group">
+            <span class="stat-curr text-orange">₹</span>
+            <span class="stat-number text-orange" id="statSpent">0</span>
+            <span class="stat-unit">Qc</span>
+          </div>
+          <div class="stat-card-footer">
+            <span class="stat-footnote">Sent to peer students or job fees</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Total Withdrawn -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-label">Total Withdrawn</span>
+            <div class="stat-icon-wrapper icon-withdrawn">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2 2 7h20l-10-5z"/></svg>
+            </div>
+          </div>
+          <div class="stat-value-group">
+            <span class="stat-curr text-purple">₹</span>
+            <span class="stat-number text-purple" id="statWithdrawn">0</span>
+            <span class="stat-unit">INR</span>
+          </div>
+          <div class="stat-card-footer">
+            <span class="stat-footnote">Direct payouts to UPI / Bank</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Action Panels Grid -->
+      <section class="econ-panels-grid">
+        <!-- Quick Peer Transfer Panel -->
+        <div class="action-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-badge-icon icon-send">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </div>
+              <div>
+                <h2 class="panel-title">Peer-to-Peer Transfer</h2>
+                <p class="panel-subtitle">Instant coin transfer to any campus student</p>
+              </div>
+            </div>
+          </div>
+          
+          <form id="quickTransferForm" class="panel-form">
+            <div class="form-group">
+              <label for="transferRecipient">Recipient Identifier <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                <input type="text" id="transferRecipient" placeholder="Email, Reg No, or Phone (e.g. 12108877)" required autocomplete="off" />
+              </div>
+              <small class="form-hint">Lookup works with student email, registration number, or registered phone.</small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="transferAmount">Amount (Qc) <span class="req">*</span></label>
+                <div class="input-with-icon">
+                  <span class="input-prefix">₹</span>
+                  <input type="number" id="transferAmount" min="1" max="50000" placeholder="100" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="transferNote">Note / Purpose <span class="opt">(Optional)</span></label>
+                <input type="text" id="transferNote" placeholder="e.g., Calculus notes, cab share" maxlength="100" />
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <div class="balance-hint">
+                <span>Available: <strong id="transferAvailBal">0</strong> Qc</span>
+              </div>
+              <button type="submit" class="btn btn-primary" id="btnSubmitTransfer">
+                Send Coins
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Quick Cashout / Withdrawal Panel -->
+        <div class="action-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <div class="panel-badge-icon icon-withdraw">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v14"/><path d="m7 12 5 5 5-5"/><path d="M4 21h16"/></svg>
+              </div>
+              <div>
+                <h2 class="panel-title">Withdraw to Real INR</h2>
+                <p class="panel-subtitle">Direct payout to UPI ID or Bank Account (1 Qc = ₹1)</p>
+              </div>
+            </div>
+          </div>
+
+          <form id="quickWithdrawForm" class="panel-form">
+            <div class="form-group">
+              <label>Payout Method <span class="req">*</span></label>
+              <div class="radio-toggle-group">
+                <label class="radio-pill">
+                  <input type="radio" name="withdrawMethod" value="UPI" checked />
+                  <span>UPI (GPay / PhonePe / Paytm)</span>
+                </label>
+                <label class="radio-pill">
+                  <input type="radio" name="withdrawMethod" value="BANK" />
+                  <span>Bank Account</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" id="payoutDetailsGroup">
+              <label for="withdrawDetails" id="withdrawDetailsLabel">UPI ID <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+                <input type="text" id="withdrawDetails" placeholder="username@okhdfcbank" required />
+              </div>
+              <small class="form-hint" id="withdrawHint">Funds will be credited directly to this UPI VPA.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="withdrawAmount">Withdrawal Amount (Qc = ₹) <span class="req">*</span></label>
+              <div class="input-with-icon">
+                <span class="input-prefix">₹</span>
+                <input type="number" id="withdrawAmount" min="50" placeholder="Minimum 50 Qc" required />
+              </div>
+              <small class="form-hint">Minimum payout threshold: 50 Qc (₹50 INR). No fee deducted.</small>
+            </div>
+
+            <div class="form-footer">
+              <div class="balance-hint">
+                <span>Available: <strong id="withdrawAvailBal">0</strong> Qc</span>
+              </div>
+              <button type="submit" class="btn btn-outline" id="btnSubmitWithdraw">
+                Request Withdrawal
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Transaction History Section -->
+      <section class="econ-history-section">
+        <div class="history-header">
+          <div>
+            <h2 class="history-title">Personal Transaction History</h2>
+            <p class="history-subtitle">Verified database ledger of your earnings, transfers, topups, and payouts.</p>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="history-controls">
+            <div class="filter-pills" id="txnFilterPills">
+              <button class="pill active" data-filter="ALL">All</button>
+              <button class="pill" data-filter="EARNED">Earnings</button>
+              <button class="pill" data-filter="TRANSFER_OUT">Transfers Out</button>
+              <button class="pill" data-filter="WITHDRAWAL">Withdrawals</button>
+              <button class="pill" data-filter="TOPUP">Top-ups</button>
+            </div>
+            <div class="history-search">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="txnSearchInput" placeholder="Filter by reference, note, recipient…" autocomplete="off" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Data Table -->
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="econ-table" id="txnTable">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Date &amp; Time</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th class="text-right">Amount</th>
+                  <th class="text-right">Balance After</th>
+                  <th class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody id="txnTableBody">
+                <tr class="loading-row">
+                  <td colspan="7" class="text-center py-6">
+                    <div class="loading-spinner"></div>
+                    <p class="text-muted mt-2">Loading transaction ledger from database…</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emptyTxnState" style="display: none;">
+            <div class="empty-icon">
+              <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M22 10H2"/><path d="M18 14h.01"/></svg>
+            </div>
+            <h3>No Transactions Found</h3>
+            <p>You have not made any transactions matching this criteria yet.</p>
+            <button class="btn btn-secondary mt-3" id="resetFilterBtn">View All Transactions</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ══════════ MODALS ══════════ -->
+
+  <!-- Modal: Transfer Modal -->
+  <div class="modal-backdrop" id="transferModal" aria-hidden="true" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Peer-to-Peer Transfer</h3>
+          <p class="modal-sub">Send Quick Coins directly to any student's wallet</p>
+        </div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="modalTransferForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="modalRecipient">Recipient Student <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+              <input type="text" id="modalRecipient" placeholder="Email, Reg No, or Phone" required autocomplete="off" />
+            </div>
+            <small class="form-hint">Example: 12108877, sneha@lpu.in, or +919811144455</small>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="modalAmount">Amount in Qc <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="modalAmount" min="1" placeholder="e.g. 150" required />
+            </div>
+            <div class="balance-subhint">Available: <strong id="modalAvailBal">0</strong> Qc</div>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="modalNote">Purpose / Note</label>
+            <input type="text" id="modalNote" placeholder="e.g. Notes Xerox, Hackathon pool" maxlength="100" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnConfirmTransfer">
+            Confirm Transfer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Withdraw Modal -->
+  <div class="modal-backdrop" id="withdrawModal" aria-hidden="true" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Withdraw Quick Coins</h3>
+          <p class="modal-sub">Payout directly to your verified UPI address or Bank Account (1 Qc = ₹1 INR)</p>
+        </div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <form id="modalWithdrawForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Payout Destination <span class="req">*</span></label>
+            <div class="radio-toggle-group">
+              <label class="radio-pill">
+                <input type="radio" name="modalWithdrawMethod" value="UPI" checked />
+                <span>UPI ID</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="modalWithdrawMethod" value="BANK" />
+                <span>Bank Account</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="modalWithdrawDetails" id="modalDetailsLabel">UPI ID <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+              <input type="text" id="modalWithdrawDetails" placeholder="e.g. aryan@okaxis" required />
+            </div>
+          </div>
+
+          <div class="form-group mt-3">
+            <label for="modalWithdrawAmount">Amount to Cash Out (Qc) <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="modalWithdrawAmount" min="50" placeholder="Minimum 50 Qc" required />
+            </div>
+            <div class="balance-subhint">Available: <strong id="modalWithdrawAvailBal">0</strong> Qc • Min: 50 Qc</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnConfirmWithdraw">
+            Request Payout
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/core.js"></script>
+  <script src="scripts/economy.js"></script>
+</body>
+</html>
